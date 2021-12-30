@@ -3,5 +3,8 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
+<<<<<<< HEAD
     "configurations": []
+=======
+>>>>>>> 6a73bc566b845fef3b2c491f62a704a56cbe0522
 }
