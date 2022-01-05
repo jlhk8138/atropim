@@ -587,12 +587,33 @@ class Product extends AbstractService
 
         // prepare result
         if (!empty($result['total'])) {
+            $pavsData = $this
+                ->getEntityManager()
+                ->getRepository('ProductAttributeValue')
+                ->select(['id', 'scope', 'channelId', 'channelName'])
+                ->where(['id' => array_column($result['collection']->toArray(), 'id')])
+                ->find();
+
+            $scopeData = [];
+            foreach ($pavsData as $v) {
+                $scopeData[$v->get('id')] = $v;
+            }
+
             $records = [];
             foreach ($result['collection'] as $pav) {
-                if ($pav->get('scope') === 'Global') {
+                if (!isset($scopeData[$pav->get('id')])) {
+                    continue 1;
+                }
+                if ($scopeData[$pav->get('id')]->get('scope') === 'Global') {
                     $records[$pav->get('id')] = $pav;
-                } elseif ($pav->get('scope') === 'Channel' && !empty($channel = $pav->get('channel')) && in_array($pav->get('language'), $channel->get('locales'))) {
-                    $records[$pav->get('id')] = $pav;
+                } elseif ($scopeData[$pav->get('id')]->get('scope') === 'Channel' && !empty($channel = $scopeData[$pav->get('id')]->get('channel'))) {
+                    if (empty($pav->get('attributeIsMultilang'))) {
+                        $records[$pav->get('id')] = $pav;
+                    } else {
+                        if (in_array($pav->get('language'), $channel->get('locales'))) {
+                            $records[$pav->get('id')] = $pav;
+                        }
+                    }
                 }
             }
 
@@ -612,16 +633,26 @@ class Product extends AbstractService
                 $newRecords = [];
                 foreach ($records as $pav) {
                     if (empty($pav->get('mainLanguageId'))) {
-                        $newRecords[] = $pav;
+                        $newRecords[$pav->get('id')] = $pav;
+                        $languagesIds = [];
                         foreach ($this->getConfig()->get('inputLanguageList', []) as $language) {
                             foreach ($records as $pav1) {
                                 if ($pav1->get('mainLanguageId') === $pav->get('id') && $language === $pav1->get('language')) {
-                                    $newRecords[] = $pav1;
+                                    $newRecords[$pav1->get('id')] = $pav1;
+                                    $languagesIds[] = $pav1->get('id');
                                 }
                             }
                         }
+                        $newRecords[$pav->get('id')]->set('languagesIds', $languagesIds);
                     }
                 }
+
+                foreach ($records as $pav) {
+                    if (!isset($newRecords[$pav->get('id')])) {
+                        $newRecords[$pav->get('id')] = $pav;
+                    }
+                }
+
                 $records = $newRecords;
             }
 

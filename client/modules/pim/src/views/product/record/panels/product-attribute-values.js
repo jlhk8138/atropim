@@ -48,6 +48,8 @@ Espo.define('pim:views/product/record/panels/product-attribute-values', ['views/
             'isInheritTeams'
         ],
 
+        scope: 'ProductAttributeValue',
+
         groupKey: 'attributeGroupId',
 
         groupLabel: 'attributeGroupName',
@@ -120,22 +122,13 @@ Espo.define('pim:views/product/record/panels/product-attribute-values', ['views/
 
             var url = this.url || this.model.name + '/' + this.model.id + '/' + this.link;
 
-            if (!this.readOnly && !this.defs.readOnly) {
-                if (!('create' in this.defs)) {
-                    this.defs.create = true;
-                }
-                if (!('select' in this.defs)) {
-                    this.defs.select = true;
-                }
-            }
-
             this.filterList = this.defs.filterList || this.filterList || null;
 
             if (this.filterList && this.filterList.length) {
                 this.filter = this.getStoredFilter();
             }
 
-            if (this.defs.create && this.getAcl().check('ProductAttributeValue', 'create')) {
+            if (this.getAcl().check('ProductAttributeValue', 'create')) {
                 this.buttonList.push({
                     title: 'Create',
                     action: this.defs.createAction || 'createRelated',
@@ -150,7 +143,7 @@ Espo.define('pim:views/product/record/panels/product-attribute-values', ['views/
                 });
             }
 
-            if (this.defs.select && this.getAcl().check('ProductAttributeValue', 'create')) {
+            if (this.getAcl().check('ProductAttributeValue', 'create')) {
                 var data = {link: this.defs.name};
                 if (this.defs.selectPrimaryFilterName) {
                     data.primaryFilterName = this.defs.selectPrimaryFilterName;

@@ -39,6 +39,7 @@
     "scope": {
       "type": "enum",
       "notStorable": true,
+      "aclFieldDisabled": false,
       "prohibitedEmptyValue": true,
       "options": [
         "Global",
@@ -57,6 +58,7 @@
     "channel": {
       "type": "varchar",
       "notStorable": true,
+      "aclFieldDisabled": false,
       "view": "pim:views/asset/fields/channel",
       "layoutDetailDisabled": true,
       "layoutDetailSmallDisabled": true,
